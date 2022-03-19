@@ -1,6 +1,6 @@
 from exchangelib import DELEGATE, Configuration, Credentials, Account, FileAttachment
 import os
-import PyPDF2
+import PyPDF3
 import re
 import access
 import openpyxl
@@ -26,214 +26,210 @@ projectTitle = " ".join(map(str,sys.argv[1:]))
 browser = webdriver.Chrome()
 action = webdriver.ActionChains(browser) # is this being used?
 
-def main():
-    print("don't run main.")
-    
-if name__=='__main__':
 
-    def hubxlogin(): # should move login to access.py
+def hubxlogin():
 
-        browser.get('https://access.sgkinc.com')
-        userElem = browser.find_element(By.NAME, 'usr')
-        userElem.send_keys(username)
-        userPwd = browser.find_element(By.NAME,'pwd')
-        userPwd.send_keys(passWord)
-        loginButton = browser.find_element(By.CLASS_NAME, 'btn')
-        loginButton.click()
+    browser.get('https://www.website.comm')
+    userElem = browser.find_element(By.NAME, 'usr')
+    userElem.send_keys(username)
+    userPwd = browser.find_element(By.NAME,'pwd')
+    userPwd.send_keys(passWord)
+    loginButton = browser.find_element(By.CLASS_NAME, 'btn')
+    loginButton.click()
 
-    def createProject():
+def createProject():
+
+    projects = browser.find_element(By.XPATH, "//*[@id='pgMenu']/tbody/tr/td[2]")
+    projects.click()
+    newProject = browser.find_element(By.XPATH, "//*[@id='pgCont']//button[1]")
+    newProject.click()
+    projectName = browser.find_element(By.XPATH, "//*[@id='in17']")
+    projectName.send_keys(projectTitle + " " + str(today))
+    selectSite = browser.find_element(By.ID, 'in20')
+    select_site = Select(selectSite)
+    select_site.select_by_value('5077')
+    parentGroup = browser.find_element(By.ID, 'in12')
+    select_parent = Select(parentGroup)
+    select_parent.select_by_value('1000000788')
+    time.sleep(2)
+    soldTo = browser.find_element(By.ID, 'in21')
+    select_soldTo = Select(soldTo)
+    select_soldTo.select_by_visible_text('BLUE BUFFALO COMPANY LTD | 1000024772')
+    time.sleep(2)
+    csr = browser.find_element(By.ID, 'in23')
+    select_csr = Select(csr)
+    select_csr.select_by_value('2817')
+    time.sleep(2)
+    zfoc = browser.find_element(By.ID, 'in11')
+    select_zfoc = Select(zfoc)
+    select_zfoc.select_by_value('ZFOC')
+    save = browser.find_element(By.XPATH, "//*[@id='d1']/button[1]")
+    save.click()
+    time.sleep(2)
+
+def projAddFisrtJob():
+
+    ###switch to jobs tab in project and create first job
+    browser.find_element(By.XPATH, "/html/body/div[3]/div[2]/div/table/tbody/tr/td/table/tbody/tr/td[3]/a").click()
+    time.sleep(2)
+    browser.find_element(By.XPATH, "/html/body/div[3]/div[2]/div/table[2]/thead/tr[2]/td/table/tbody/tr/td[1]/button").click()
+
+def soldToNoProj(): #adds parent group and sold to for jobs created individually and not within a project
+
+    parentGroup = browser.find_element(By.ID, 'in22')
+    selectParent = Select(parentGroup)
+    selectParent.select_by_value('1000000788')
+    time.sleep(2)
+    soldTo = browser.find_element(By.ID, 'in30')
+    selectBB = Select(soldTo)
+    selectBB.select_by_value('1000024772')
+
+def serviceOrder(MTnumber, bagSize, dieline, description, UPC, panel):
+
+    if "BB" not in dieline:
+        panel = mainPanel
+    else:
+        panel = combined
         
-        projects = browser.find_element(By.XPATH, "//*[@id='pgMenu']/tbody/tr/td[2]")
-        projects.click()
-        newProject = browser.find_element(By.XPATH, "//*[@id='pgCont']//button[1]")
-        newProject.click()
-        projectName = browser.find_element(By.XPATH, "//*[@id='in17']")
-        projectName.send_keys(projectTitle + " " + str(today))
-        selectSite = browser.find_element(By.ID, 'in20')
-        select_site = Select(selectSite)
-        select_site.select_by_value('5077')
-        parentGroup = browser.find_element(By.ID, 'in12')
-        select_parent = Select(parentGroup)
-        select_parent.select_by_value('1000000788')
-        time.sleep(2)
-        soldTo = browser.find_element(By.ID, 'in21')
-        select_soldTo = Select(soldTo)
-        select_soldTo.select_by_visible_text('BLUE BUFFALO COMPANY LTD | 1000024772')
-        time.sleep(2)
-        csr = browser.find_element(By.ID, 'in23')
-        select_csr = Select(csr)
-        select_csr.select_by_value('2817')
-        time.sleep(2)
-        zfoc = browser.find_element(By.ID, 'in11')
-        select_zfoc = Select(zfoc)
-        select_zfoc.select_by_value('ZFOC')
-        save = browser.find_element(By.XPATH, "//*[@id='d1']/button[1]")
-        save.click()
-        time.sleep(2)
+    # swith to TECHNICAL tab
+    browser.find_element(By.XPATH, '//*[@id="tabdet"]').click()
+    select_UPCA = browser.find_element(By.ID, 'in155')
+    selectUPC = Select(select_UPCA)
+    selectUPC.select_by_value('038')
+    UPCinput = browser.find_element(By.ID, 'in143')
+    UPCinput.send_keys(UPC) # input UPC number
+    browser.find_element(By.ID, 'in612').send_keys(projectTitle) # PROJECT NAME
 
-    def projAddFisrtJob():
-        
-        ###switch to jobs tab in project and create first job
-        browser.find_element(By.XPATH, "/html/body/div[3]/div[2]/div/table/tbody/tr/td/table/tbody/tr/td[3]/a").click()
-        time.sleep(2)
-        browser.find_element(By.XPATH, "/html/body/div[3]/div[2]/div/table[2]/thead/tr[2]/td/table/tbody/tr/td[1]/button").click()
-        
-    def soldToNoProj(): #adds parent group and sold to for jobs created individually and not within a project
-        
-        parentGroup = browser.find_element(By.ID, 'in22')
-        selectParent = Select(parentGroup)
-        selectParent.select_by_value('1000000788')
-        time.sleep(2)
-        soldTo = browser.find_element(By.ID, 'in30')
-        selectBB = Select(soldTo)
-        selectBB.select_by_value('1000024772')
-        
-    def serviceOrder(MTnumber, bagSize, dieline, description, UPC, panel):
-        
-        if "BB" not in dieline:
-            panel = mainPanel
-        else:
-            panel = combined
-            
-        # swith to TECHNICAL tab
-        browser.find_element(By.XPATH, '//*[@id="tabdet"]').click()
-        select_UPCA = browser.find_element(By.ID, 'in155')
-        selectUPC = Select(select_UPCA)
-        selectUPC.select_by_value('038')
-        UPCinput = browser.find_element(By.ID, 'in143')
-        UPCinput.send_keys(UPC) # input UPC number
-        browser.find_element(By.ID, 'in612').send_keys(projectTitle) # PROJECT NAME
+    #Switch back to GENERAL TAB
+    browser.find_element(By.ID, 'tabjob').click()
+    browser.find_element(By.ID, 'in24').send_keys('TBD')  # PO NUMBER
+    time.sleep(2)
+    selectPrinter = browser.find_element(By.ID, 'in25')
+    choosePrinter = Select(selectPrinter)
+    choosePrinter.select_by_visible_text('Amcor Flexibles Oshkosh North | 1000002470')
+    category = browser.find_element(By.ID, 'in34')
+    chooseCat = Select(category)
+    chooseCat.select_by_value('Dry')
+    variantInput = browser.find_element(By.ID, 'in44')
+    variantInput.send_keys(MTnumber + panel) #input variant
+    bagName1 = browser.find_element(By.ID, 'in41')
+    bagName1.send_keys(description + panel) # description / name
+    browser.find_element(By.ID, 'in39').send_keys('Packaging') # PACK TYPE
+    brand = browser.find_element(By.ID, 'in33')
+    chooseBrand = Select(brand)
+    chooseBrand.select_by_value('Blue Buffalo')
+    bagName2 = browser.find_element(By.ID, 'in36')
+    bagName2.send_keys(description + panel) # MATERIAL DESCRIPTION
+    packSize = browser.find_element(By.ID, 'in38')
+    packSize.send_keys(packSize) # PACXK SIZE
+    printMethod = browser.find_element(By.ID, 'in56')
+    choosePrintMethod = Select(printMethod)
+    choosePrintMethod.select_by_value('03') # FLEXO
+    printSpec = browser.find_element(By.ID, 'in57')
+    choosePrintSpec = Select(printSpec)
+    time.sleep(1)
+    choosePrintSpec.select_by_value('P1802073989') # For AMCOR NORTH this is 1718
+    dielineInput1 = browser.find_element(By.ID, 'in46')
+    dielineInput1.send_keys(dieline) # first dieline input
+    dielineInput2 = browser.find_element(By.ID, 'in45')
+    dielineInput2.send_keys(dieline) # second dieline input
+    inputBMN = browser.find_element(By.ID, 'in72')
+    inputBMN.send_keys(MTnumber) #input BMN field
+    csr = browser.find_element(By.ID, 'in88')
+    chooseCSR = Select(csr)
+    chooseCSR.select_by_value('2817') #Select CSR - may not be needed when started from project
 
-        #Switch back to GENERAL TAB
-        browser.find_element(By.ID, 'tabjob').click()
-        browser.find_element(By.ID, 'in24').send_keys('TBD')  # PO NUMBER
-        time.sleep(2)
-        selectPrinter = browser.find_element(By.ID, 'in25')
-        choosePrinter = Select(selectPrinter)
-        choosePrinter.select_by_visible_text('Amcor Flexibles Oshkosh North | 1000002470')
-        category = browser.find_element(By.ID, 'in34')
-        chooseCat = Select(category)
-        chooseCat.select_by_value('Dry')
-        variantInput = browser.find_element(By.ID, 'in44')
-        variantInput.send_keys(mtNumber + panel) #input variant
-        bagName1 = browser.find_element(By.ID, 'in41')
-        bagName1.send_keys(description + panel) # description / name
-        browser.find_element(By.ID, 'in39').send_keys('Packaging') # PACK TYPE
-        brand = browser.find_element(By.ID, 'in33')
-        chooseBrand = Select(brand)
-        chooseBrand.select_by_value('Blue Buffalo')
-        bagName2 = browser.find_element(By.ID, 'in36')
-        bagName2.send_keys(description + panel) # MATERIAL DESCRIPTION
-        packSize = browser.find_element(By.ID, 'in38')
-        packSize.send_keys(packSize) # PACXK SIZE
-        printMethod = browser.find_element(By.ID, 'in56')
-        choosePrintMethod = Select(printMethod)
-        choosePrintMethod.select_by_value('03') # FLEXO
-        printSpec = browser.find_element(By.ID, 'in57')
-        choosePrintSpec = Select(printSpec)
-        time.sleep(1)
-        choosePrintSpec.select_by_value('P1802073989') # For AMCOR NORTH this is 1718
-        dielineInput1 = browser.find_element(By.ID, 'in46')
-        dielineInput1.send_keys(dieline) # first dieline input
-        dielineInput2 = browser.find_element(By.ID, 'in45')
-        dielineInput2.send_keys(dieline) # second dieline input
-        inputBMN = browser.find_element(By.ID, 'in72')
-        inputBMN.send_keys(mtNumber) #input BMN field
-        csr = browser.find_element(By.ID, 'in88')
-        chooseCSR = Select(csr)
-        chooseCSR.select_by_value('2817') #Select CSR - may not be needed when started from project
+def datepicker():
 
-    def datepicker():
-
-        # first calendar date picker
-        browser.find_element(By.XPATH, '//*[@id="frm.ddl"]/div/table[1]/tbody/tr[1]/td[2]/table/tbody/tr/td[1]/table/tbody/tr/td[3]/label/img').click() 
-        # gets to the actual calendar part (days and weeks)
-        dates = browser.find_element(By.XPATH, '//*[@id="ui-datepicker-div"]/table/tbody')
-        last = dates.find_elements(By.CLASS_NAME, 'ui-state-default')[-1]
-        lastDay = int(last.text)
-        # this works to select the next month
-        nextMonth = browser.find_element(By.XPATH, '//*[@id="ui-datepicker-div"]/div[1]/a[2]')
-        if dueDate > lastDay:
-            newDue = dueDate - lastDay
-            nextMonth.click()
-            newCalendar = browser.find_element(By.XPATH, '//*[@id="ui-datepicker-div"]/table/tbody')
-            newCalendar.find_element(By.LINK_TEXT, str(newDue)).click()
-        else:
-            days = dates.find_element(By.LINK_TEXT, str(dueDate))
-            days.click()
-            #this is the second date picker, clicks two months forward and selects the last date - weekend or weekday doesn't matter
-        browser.find_element(By.XPATH, '//*[@id="frm.ddl"]/div/table[1]/tbody/tr[1]/td[4]/table/tbody/tr/td[1]/table/tbody/tr/td[3]/label/img').click()
+    # first calendar date picker
+    browser.find_element(By.XPATH, '//*[@id="frm.ddl"]/div/table[1]/tbody/tr[1]/td[2]/table/tbody/tr/td[1]/table/tbody/tr/td[3]/label/img').click() 
+    # gets to the actual calendar part (days and weeks)
+    dates = browser.find_element(By.XPATH, '//*[@id="ui-datepicker-div"]/table/tbody')
+    last = dates.find_elements(By.CLASS_NAME, 'ui-state-default')[-1]
+    lastDay = int(last.text)
+    # this works to select the next month
+    nextMonth = browser.find_element(By.XPATH, '//*[@id="ui-datepicker-div"]/div[1]/a[2]')
+    if dueDate > lastDay:
+        newDue = dueDate - lastDay
         nextMonth.click()
-        nextMonth.click()
-        #the below commented  out code is a repeat of above in the function so do I need it again? maybe because selenium
-##        dates = browser.find_element(By.XPATH, '//*[@id="ui-datepicker-div"]/table/tbody')
-##        dates = browser.find_element(By.XPATH, '//*[@id="ui-datepicker-div"]/table/tbody')
-##        last = dates.find_elements(By.CLASS_NAME, 'ui-state-default')[-1]
-        last.click() 
+        newCalendar = browser.find_element(By.XPATH, '//*[@id="ui-datepicker-div"]/table/tbody')
+        newCalendar.find_element(By.LINK_TEXT, str(newDue)).click()
+    else:
+        days = dates.find_element(By.LINK_TEXT, str(dueDate))
+        days.click()
+        #this is the second date picker, clicks two months forward and selects the last date - weekend or weekday doesn't matter
+    browser.find_element(By.XPATH, '//*[@id="frm.ddl"]/div/table[1]/tbody/tr[1]/td[4]/table/tbody/tr/td[1]/table/tbody/tr/td[3]/label/img').click()
+    nextMonth.click()
+    nextMonth.click()
+    #the below commented  out code is a repeat of above in the function so do I need it again? maybe because selenium
+    ##        dates = browser.find_element(By.XPATH, '//*[@id="ui-datepicker-div"]/table/tbody')
+    ##        dates = browser.find_element(By.XPATH, '//*[@id="ui-datepicker-div"]/table/tbody')
+    ##        last = dates.find_elements(By.CLASS_NAME, 'ui-state-default')[-1]
+    last.click() 
+
+def ZFOC(): #this is to make them no charge jobs so I can test save and dupe
         
-    def ZFOC(): #this is to make them no charge jobs so I can test save and dupe
-              
-        orderType = browser.find_element(By.ID,'in21')
-        chooseOrderType = Select(orderType)
-        chooseOrderType.select_by_value('ZFOC')
+    orderType = browser.find_element(By.ID,'in21')
+    chooseOrderType = Select(orderType)
+    chooseOrderType.select_by_value('ZFOC')
+
+def savejob():
+
+    savePanel = browser.find_element(By.CLASS_NAME, 'jobpan')
+    save = savePanel.find_elements(By.TAG_NAME, 'button')[0]
+    save.click()
+    time.sleep(5)
+
+def copyINproject(): # can I manage to open in new tab and move to that tab to continue? not necessary but would be convenient
+
+    browser.find_element(By.XPATH, '//*[@id="l37"]').click() #opens the copy options
+    time.sleep(1)
+    browser.find_element(By.XPATH, '//*[@id="d36"]/table/tbody/tr[1]/td[2]').click() #clicks copy in project
+    # browser.find_element(By.XPATH, '/html/body/div[3]/div[2]/div/form/table/tbody/tr/td[3]/div/div/[2]/div[2]/button[2]/div/table/tbody/tr/td[2]').click()
+
+def gusset(MTnumber, description): #adds gusset after Main panel
+
+    variantInput = browser.find_element(By.ID, 'in44')
+    variantInput.clear()
+    variantInput.send_keys(MTnumber + gusset)
+    bagName1 = browser.find_element(By.ID, 'in41')
+    bagName1.clear()
+    bagName1.send_keys(description + gusset)
+    bagName2 = browser.find_element(By.ID, 'in36')
+    bagName2.clear()
+    bagName2.send_keys(description + gusset)
+
+def newBag(MTnumber, bagSize, dieline, description, UPC, panel): #either a new Main panel or combined
+
+    if "BB" not in dieline:
+        panel = mainPanel
+    else:
+        panel = combined
         
-    def savejob():
-
-        savePanel = browser.find_element(By.CLASS_NAME, 'jobpan')
-        save = savePanel.find_elements(By.TAG_NAME, 'button')[0]
-        save.click()
-        time.sleep(5)
-
-    def copyINproject(): # can I manage to open in new tab and move to that tab to continue? not necessary but would be convenient
-
-        browser.find_element(By.XPATH, '//*[@id="l37"]').click() #opens the copy options
-        time.sleep(1)
-        browser.find_element(By.XPATH, '//*[@id="d36"]/table/tbody/tr[1]/td[2]').click() #clicks copy in project
-        # browser.find_element(By.XPATH, '/html/body/div[3]/div[2]/div/form/table/tbody/tr/td[3]/div/div/[2]/div[2]/button[2]/div/table/tbody/tr/td[2]').click()
-
-    def gusset(MTnumber, description): #adds gusset after Main panel
+    browser.find_element(By.XPATH, '//*[@id="tabdet"]').click() # swith to TECHNICAL tab
+    UPCinput = browser.find_element(By.ID, 'in143')
+    UPCinput.clear()
+    UPCinput.send_keys(UPC) # input UPC number
         
-        variantInput = browser.find_element(By.ID, 'in44')
-        variantInput.clear()
-        variantInput.send_keys(mtNumber + gusset)
-        bagName1 = browser.find_element(By.ID, 'in41')
-        bagName1.clear()
-        bagName1.send_keys(description + gusset)
-        bagName2 = browser.find_element(By.ID, 'in36')
-        bagName2.clear()
-        bagName2.send_keys(description + gusset)
-    
-    def newBag(MTnumber, bagSize, dieline, description, UPC, panel): #either a new Main panel or combined
-
-        if "BB" not in dieline:
-            panel = mainPanel
-        else:
-            panel = combined
-            
-        browser.find_element(By.XPATH, '//*[@id="tabdet"]').click() # swith to TECHNICAL tab
-        UPCinput = browser.find_element(By.ID, 'in143')
-        UPCinput.clear()
-        UPCinput.send_keys(UPC) # input UPC number
-            
-        browser.find_element(By.ID, 'tabjob').click() #Switch back to GENERAL TAB
-        variantInput = browser.find_element(By.ID, 'in44')
-        variantInput.clear()
-        variantInput.send_keys(mtNumber + panel)
-        bagName1 = browser.find_element(By.ID, 'in41')
-        bagName1.clear()
-        bagName1.send_keys(description + panel)
-        bagName2 = browser.find_element(By.ID, 'in36')
-        bagName2.clear()
-        bagName2.send_keys(description + panel)
-        packSize = browser.find_element(By.ID, 'in38')
-        packSize.clear()
-        packSize.send_keys(packSize) # PACXK SIZE
-        dielineInput1 = browser.find_element(By.ID, 'in46')
-        dielineInput1.clear()
-        dielineInput1.send_keys(dieline) # first dieline input
-        dielineInput2 = browser.find_element(By.ID, 'in45')
-        dielineInput2.clear()
-        dielineInput2.send_keys(dieline) # second dieline input
-        inputBMN = browser.find_element(By.ID, 'in72')
-        inputBMN.clear()
-        inputBMN.send_keys(mtNumber) #input BMN field
+    browser.find_element(By.ID, 'tabjob').click() #Switch back to GENERAL TAB
+    variantInput = browser.find_element(By.ID, 'in44')
+    variantInput.clear()
+    variantInput.send_keys(MTnumber + panel)
+    bagName1 = browser.find_element(By.ID, 'in41')
+    bagName1.clear()
+    bagName1.send_keys(description + panel)
+    bagName2 = browser.find_element(By.ID, 'in36')
+    bagName2.clear()
+    bagName2.send_keys(description + panel)
+    packSize = browser.find_element(By.ID, 'in38')
+    packSize.clear()
+    packSize.send_keys(packSize) # PACXK SIZE
+    dielineInput1 = browser.find_element(By.ID, 'in46')
+    dielineInput1.clear()
+    dielineInput1.send_keys(dieline) # first dieline input
+    dielineInput2 = browser.find_element(By.ID, 'in45')
+    dielineInput2.clear()
+    dielineInput2.send_keys(dieline) # second dieline input
+    inputBMN = browser.find_element(By.ID, 'in72')
+    inputBMN.clear()
+    inputBMN.send_keys(MTnumber) #input BMN field
